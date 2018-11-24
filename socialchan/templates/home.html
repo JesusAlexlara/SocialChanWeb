@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}">
+        <main role="main" class="container">
+        <div class="row justify-content-center">
+            <div class="text-center">
+                 <img class="img-fluid" src="{{ url_for('static', filename='img/SocialChan.png') }}" alt="SocialChan">
+            </div>
+         </div>
+        <br>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row justify-content-center">
+                    <div class="col-md-12" align="center">
+                        <div class="content-section">
+                            {% if current_user.is_authenticated %}
+                            <div class="card">
+                                <div class="box">
+                                    <div class="img">
+                                        <img src="{{ url_for('static', filename='img/avatars/') }}{{ current_user.avatar_file }}">
+                                    </div>
+                                    <h2>Username: {{ current_user.username }}
+                                        <br>
+                                        <span>SocialChan User</span>
+                                    </h2>
+                                    <a class="btn btn-success" href="{{ url_for('account') }}" role="button">Perfil</a>
+                                    <a class="btn btn-danger" href="{{ url_for('logout') }}" role="button">Salir</a>
+                                    </span>
+                                </div>
+                            </div>
+                            {% else %}
+                            <a class="btn btn-dark" href="{{ url_for('login') }}" role="button">Iniciar Sesión</a>
+                            <a class="btn btn-secondary" href="{{ url_for('register') }}" role="button">Registro</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                    <div class="content-section">
+                        <h3>Tablones</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-light">Ultimos Posts</li>
+                            <li class="list-group-item list-group-item-light">Nuevos</li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% for post in posts %}
+                <article class="media content-section">
+                    <div class="media-body">
+                    <div class="article-metadata">
+                        <a class="mr-2" href="#">{{ post.author }}</a>
+                        <small class="text-muted">{{ post.date_posted }}</small>
+                     </div>
+                    <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
+                    <p class="article-content">{{ post.content }}</p>
+                 </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+{% endblock content %}
