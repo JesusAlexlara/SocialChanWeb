@@ -1,7 +1,8 @@
 import secrets
 import os
+import markdown2
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, Markup
 from flask_login import login_user, current_user, logout_user, login_required
 
 from socialchan import app, db, bcrypt
@@ -28,6 +29,7 @@ posts = [
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    boards = Board.query.all()
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = RegistrationForm()
@@ -39,11 +41,12 @@ def register():
         message = f'Se creo la cuenta { form.username.data } puedes iniciar sesión!!'
         flash(message , 'success')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Registro', form=form)
+    return render_template('register.html', title='Registro', form=form, boards=boards)
 
 
 @app.route('/login',  methods=['GET', 'POST'])
 def login():
+    boards = Board.query.all()
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = LoginForm()
@@ -55,13 +58,15 @@ def login():
             return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
             flash('Datos incorrectos, verifica nombre de usuario y contraseña.', 'danger')
-    return render_template('login.html', title='Ingreso', form=form)
+    return render_template('login.html', title='Ingreso', form=form, boards=boards)
 
 
 @app.route('/')
 @app.route('/home')
 def home():
-    return render_template('home.html', title="inicio", posts=posts)
+    boards = Board.query.all()
+    threads = Thread.query.order_by(Thread.date_posted).limit(5).all()
+    return render_template('home.html', title="inicio", boards=boards, posts=posts, threads=threads)
 
 
 @app.route('/logout')
@@ -104,3 +109,61 @@ def account():
         form.email.data = current_user.email
     return render_template('account.html', title='Perfil', form=form)
 
+
+@app.route('/board', methods=['GET', 'POST'])
+@login_required
+def board():
+    form = BoardForm()
+
+    if form.validate_on_submit():
+        board = Board(
+            title=form.title.data,
+            short_title=form.short_title.data,
+            registered_user=form.registrados.data,
+            Description=form.descripcion.data
+        )
+        db.session.add(board)
+        db.session.commit()
+        flash('Se guardo el tablon satisfactoriamente', 'success')
+        return redirect(url_for('board'))
+    return render_template('board.html', title='Tableros', form=form)
+
+
+@app.route('/<name>')
+def layaout(name):
+    #Verificacion de solo usuarios registrados
+    board = Board.query.filter_by(short_title=name).first()
+    if not board:
+        flash('No tienes permisos o no existe este elemento', 'danger')
+        return redirect(url_for('home'))
+    boards = Board.query.all()
+    page = request.args.get('page', 1, type=int)
+    threads = Thread.query.paginate(page=page, per_page=5)
+    return render_template('layaout.html', title='Tableros', board=board, boards=boards, threads=threads, page=page)
+
+
+@app.route('/<name>/new', methods=['GET', 'POST'])
+def create_Thread(name):
+    board = Board.query.filter_by(short_title=name).first()
+    form = ThreadForm()
+    if not board:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    if form.validate_on_submit():
+        # user = Usuario.query.filter_by(id=current_user.id).first()
+        mk = markdown2.markdown(form.contenido.data)
+        sec = secrets.token_hex(5)
+        thread = Thread(
+            title=form.title.data,
+            content=mk,
+            raw_content=form.contenido.data,
+            code=sec,
+            registered=form.registrados.data,
+            tablero=board,
+            usuario=current_user
+        )
+        db.session.add(thread)
+        db.session.commit()
+        flash(f'Se guardo el hilo satisfactoriamente /{ sec }', 'success')
+        return redirect(url_for('home'))
+    return render_template('createThread.html', title='Nuevo hilo :D', form=form)

@@ -25,6 +25,7 @@
                                         <span>SocialChan User</span>
                                     </h2>
                                     <a class="btn btn-success" href="{{ url_for('account') }}" role="button">Perfil</a>
+                                    <a class="btn btn-success" href="{{ url_for('board') }}" role="button">Tableros</a>
                                     <a class="btn btn-danger" href="{{ url_for('logout') }}" role="button">Salir</a>
                                     </span>
                                 </div>
@@ -41,8 +42,13 @@
                     <div class="content-section">
                         <h3>Tablones</h3>
                         <ul class="list-group">
-                            <li class="list-group-item list-group-item-light">Ultimos Posts</li>
-                            <li class="list-group-item list-group-item-light">Nuevos</li>
+                            {% for board in boards %}
+                            <li class="list-group-item list-group-item-light">
+                                <a href="/{{ board.short_title }}" title="{{ board.short_title }}">
+                                    {{ board.title }}
+                                </a>
+                            </li>
+                            {% endfor %}
                         </ul>
                     </div>
                     </div>
@@ -56,15 +62,18 @@
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
-                {% for post in posts %}
+                {% for thread in threads %}
                 <article class="media content-section">
+                    <img class="rounded-circle article-img"
+                         src="{{ url_for('static', filename='img/avatars/') }}{{ thread.usuario.avatar_file }}">
                     <div class="media-body">
                     <div class="article-metadata">
-                        <a class="mr-2" href="#">{{ post.author }}</a>
-                        <small class="text-muted">{{ post.date_posted }}</small>
+                        <a class="mr-2" href="#">{{ thread.usuario.username }}</a>
+                        <a class="mr-2" href="/{{ thread.tablero.short_title }}"> /{{ thread.tablero.short_title }}/</a>
+                        <small class="text-muted">{{ thread.date_posted.strftime('%Y-%m-%d') }}</small>
                      </div>
-                    <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
-                    <p class="article-content">{{ post.content }}</p>
+                    <h2><a class="article-title" href="#">{{ thread.title }}</a></h2>
+                    <p class="article-content">{{ thread.content|safe }}</p>
                  </div>
                 </article>
                 {% endfor %}

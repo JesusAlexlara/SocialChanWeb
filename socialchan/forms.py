@@ -1,10 +1,10 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from flask_login import current_user
 
-from socialchan.models import Usuario
+from socialchan.models import Usuario, Board
 
 
 class RegistrationForm(FlaskForm):
@@ -55,3 +55,31 @@ class UpdateAccountForm(FlaskForm):
 
             if ema:
                 raise ValueError('El correo electronico ya existe!!')
+
+
+class BoardForm(FlaskForm):
+    title = StringField('Nombre del tablero', validators=[DataRequired('Se necesita el nombre!!'),Length(min=2, max=20)])
+    short_title = StringField('Nombre corto para url', validators=[DataRequired('se necesita el nombre corto'),Length(min=1, max=3)])
+    registrados = BooleanField('¿Solo usuarios registrados?')
+    descripcion = TextAreaField('Descripción del tablero', validators=[DataRequired('Se necesita una descripcion'), Length(min=1, max=256)])
+    submit = SubmitField('Crear tablero')
+
+    def validate_title(self, title):
+        board = Board.query.filter_by(title=title.data).first()
+
+        if board:
+            raise ValueError('Este nombre ya existe!')
+
+    def validate_short_title(self, short_title):
+        board = Board.query.filter_by(short_title=short_title.data).first()
+
+        if board:
+            raise ValueError('Este nombre para url ya existe')
+
+
+class ThreadForm(FlaskForm):
+    title = StringField('Nombre del tablero',
+                        validators=[DataRequired('Se necesita un nombre'), Length(min=0, max=50)])
+    contenido = TextAreaField('Contenido', validators=[DataRequired('¿Para que un hilo sin contenido?')])
+    registrados = BooleanField('¿Solo usuarios registrados?')
+    submit = SubmitField('Crear Hilo')

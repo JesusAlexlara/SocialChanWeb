@@ -24,10 +24,13 @@
                     <div class="content-section">
                         <h3>Tablones</h3>
                         <ul class="list-group">
-                            <li class="list-group-item list-group-item-light">Latest Posts</li>
-                            <li class="list-group-item list-group-item-light">Announcements</li>
-                            <li class="list-group-item list-group-item-light">Calendars</li>
-                            <li class="list-group-item list-group-item-light">etc</li>
+                            {% for board in boards %}
+                            <li class="list-group-item list-group-item-light">
+                                <a href="/{{ board.short_title }}" title="{{ board.short_title }}">
+                                    {{ board.title }}
+                                </a>
+                            </li>
+                            {% endfor %}
                         </ul>
                     </div>
                     </div>
@@ -46,7 +49,7 @@
                        <form method="post" action="">
                            {{ form.hidden_tag() }}
                            <fieldset class="form-group">
-                               <legend class="border-bottom mb-4">Registro</legend>
+                               <legend class="border-bottom mb-4">Iniciar Sesión</legend>
                                <div class="form-group">
                                    {{ form.username.label(class="form-control-label") }}
                                    {% if form.username.errors %}
