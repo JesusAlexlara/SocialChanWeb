@@ -78,8 +78,15 @@ class BoardForm(FlaskForm):
 
 
 class ThreadForm(FlaskForm):
-    title = StringField('Nombre del tablero',
+    title = StringField('Nombre del hilo',
                         validators=[DataRequired('Se necesita un nombre'), Length(min=0, max=50)])
     contenido = TextAreaField('Contenido', validators=[DataRequired('¿Para que un hilo sin contenido?')])
     registrados = BooleanField('¿Solo usuarios registrados?')
     submit = SubmitField('Crear Hilo')
+
+
+class PostForm(FlaskForm):
+    title = StringField('Nombre del post',
+                        validators=[DataRequired('Se necesita un nombre'), Length(min=0, max=50)])
+    contenido = TextAreaField('Contenido', validators=[DataRequired('¿Para que un hilo sin contenido?')])
+    submit = SubmitField('Crear post')

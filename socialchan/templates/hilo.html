@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}">
+<main role="main" class="container">
+
+    <div class="row justify-content-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">SocialChan</a></li>
+                {% for b in boards %}
+                <li class="breadcrumb-item" aria-current="page">
+                    <a href="/{{b.short_title}}">{{b.short_title}}</a>
+                </li>
+                {% endfor %}
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="content-section">
+                <article class="media content-section">
+                    <img class="rounded-circle article-img"
+                         src="{{ url_for('static', filename='img/avatars/') }}{{ thread.usuario.avatar_file }}">
+                    <div class="media-body">
+                    <div class="article-metadata">
+                        <a class="mr-2" href="#">{{ thread.usuario.username }}</a>
+                        <a class="mr-2" href="/{{ thread.tablero.short_title }}"> /{{ thread.tablero.short_title }}/</a>
+                        <small class="text-muted">{{ thread.date_posted.strftime('%Y-%m-%d') }}</small>
+                     </div>
+                    <h2><a class="article-title" href="#">{{ thread.title }}</a></h2>
+                    <p class="article-content">{{ thread.content|safe }}</p>
+                 </div>
+                </article>
+                <!--<a class="btn btn-lg btn-primary" href="#" role="button">Comentar hilo</a>-->
+                <div class="float-right"><a class="btn btn-secondary btn-lg" href="{{ url_for('eliminar_hilo', name=thread.tablero.short_title, hilo=thread.code) }}" role="button">Eliminar hilo</a></div>
+                <br><br>
+                <h2>Posts</h2>
+                {% for post in thread.posts %}
+                <div class="content-section">
+                    <div class="content-section">
+                        <img class="rounded-circle article-img" src="{{ url_for('static', filename='img/avatars/') }}{{ post.usuario.avatar_file }}">
+                        <div class="media-body">
+                            <div class="article-metadata">
+                                <a class="mr-2" href="#">{{ post.usuario.username }}</a>
+                                <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <h2>{{ post.title }}</a></h2>
+                            <p class="article-content">{{ post.content|safe }}</p>
+                        </div>
+                        <a class="btn btn-primary btn-sm" href="#" role="button">comentar</a>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="content-section">
+                <form method="post" action="{{url_for('hilo', name=thread.tablero.short_title, hilo=thread.code)}}">
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Nuevo Post</legend>
+                        <div class="form-group">
+                            {{ form.title.label(class="form-control-label") }}
+                                {% if form.title.errors %}
+                            {{ form.title(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                                {{ form.title(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.contenido.label(class="form-control-label") }}
+                            {% if form.contenido.errors %}
+                                {{ form.contenido(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.contenido.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.contenido(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn btn-dark") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+{% endblock content %}

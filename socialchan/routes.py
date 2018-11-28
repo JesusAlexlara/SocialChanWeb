@@ -167,3 +167,49 @@ def create_Thread(name):
         flash(f'Se guardo el hilo satisfactoriamente /{ sec }', 'success')
         return redirect(url_for('home'))
     return render_template('createThread.html', title='Nuevo hilo :D', form=form)
+
+
+@app.route('/<name>/<hilo>', methods=['GET', 'POST'])
+def hilo(name, hilo):
+    board = Board.query.filter_by(short_title=name).first()
+    if not board:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    hilox = Thread.query.filter_by(code=hilo).first()
+    if not hilox:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(
+            title=form.title.data,
+            content=form.contenido.data,
+            hilo=hilox,
+            usuario=current_user
+        )
+        db.session.add(post)
+        db.session.commit()
+        flash('Se creo el post', 'success')
+        return redirect(url_for('hilo', name=name, hilo=hilo))
+    boards = Board.query.all()
+    return render_template('hilo.html', form=form, title=hilo.title, thread=hilox, boards=boards)
+
+
+@app.route('/<name>/<hilo>/del')
+def eliminar_hilo(name, hilo):
+    board = Board.query.filter_by(short_title=name).first()
+    if not board:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    hilo = Thread.query.filter_by(code=hilo).first()
+    if not hilo:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    if not current_user.id == hilo.user_id:
+        flash('No eres el duelo del hilo :P', 'danger')
+        return redirect(url_for('hilo', name=name, hilo=hilo))
+    db.session.delete(hilo)
+    db.session.commit()
+    flash('Se elimino el hilo exitosamente', 'success')
+    return redirect(url_for('layaout', name=name))

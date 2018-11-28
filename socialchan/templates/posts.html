@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}">
+<main role="main" class="container">
+
+    <div class="row justify-content-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">SocialChan</a></li>
+                {% for b in boards %}
+                <li class="breadcrumb-item" aria-current="page">
+                    <a href="/{{b.short_title}}">{{b.short_title}}</a>
+                </li>
+                {% endfor %}
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="content-section">
+                <div class="media">
+                    <div class="media-body">
+                        <h2 class="account-heading">/{{post.hilo.}}/ {{board.title}}</h2>
+                        <p class="text-secondary">{{ board.Description }}</p>
+                    </div>
+                </div>
+            </div>
+            <a href="/{{board.short_title}}/new" class="btn btn-primary btn-lg btn-block" role="button" aria-disabled="true">Crear Hilo</a>
+        </div>
+    </div>
+
+</main>
+
+
+{% endblock content %}

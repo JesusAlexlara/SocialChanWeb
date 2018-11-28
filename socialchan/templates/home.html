@@ -72,7 +72,7 @@
                         <a class="mr-2" href="/{{ thread.tablero.short_title }}"> /{{ thread.tablero.short_title }}/</a>
                         <small class="text-muted">{{ thread.date_posted.strftime('%Y-%m-%d') }}</small>
                      </div>
-                    <h2><a class="article-title" href="#">{{ thread.title }}</a></h2>
+                    <h2><a class="article-title" href="{{ url_for('hilo', name=thread.tablero.short_title, hilo=thread.code) }}">{{ thread.title }}</a></h2>
                     <p class="article-content">{{ thread.content|safe }}</p>
                  </div>
                 </article>
