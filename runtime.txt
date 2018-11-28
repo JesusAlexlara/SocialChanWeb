@@ -1,2 +1,2 @@
 [requires]
-python_full_version = "python-3.7.0"
+python_full_version = "python-3.7.1"
