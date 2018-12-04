@@ -30,6 +30,12 @@
                     <div class="media-body">
                         <h2 class="account-heading">/{{board.short_title}}/ {{board.title}}</h2>
                         <p class="text-secondary">{{ board.Description }}</p>
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.is_admin %}
+                            <a class="btn btn-success" href="{{ url_for('update_board', name=board.short_title) }}" role="button">Modificar</a>
+                            <a class="btn btn-danger" href="{{ url_for('delete_board', name=board.short_title) }}" role="button">Eliminar</a>
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

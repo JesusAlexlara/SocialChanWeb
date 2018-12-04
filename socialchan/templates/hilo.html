@@ -33,8 +33,9 @@
                     <p class="article-content">{{ thread.content|safe }}</p>
                  </div>
                 </article>
-                <!--<a class="btn btn-lg btn-primary" href="#" role="button">Comentar hilo</a>-->
-                <div class="float-right"><a class="btn btn-secondary btn-lg" href="{{ url_for('eliminar_hilo', name=thread.tablero.short_title, hilo=thread.code) }}" role="button">Eliminar hilo</a></div>
+
+                <div class="float-right"><a class="btn btn-secondary btn-lg btn-success" href="{{ url_for('eliminar_hilo', name=thread.tablero.short_title, hilo=thread.code) }}" role="button">Eliminar hilo</a></div>
+                <div class="float-right"><a class="btn btn-secondary btn-lg btn-danger" href="{{ url_for('modificar_hilo', name=thread.tablero.short_title, hilo=thread.code) }}" role="button">Modificar hilo</a></div>
                 <br><br>
                 <h2>Posts</h2>
                 {% for post in thread.posts %}
@@ -43,13 +44,25 @@
                         <img class="rounded-circle article-img" src="{{ url_for('static', filename='img/avatars/') }}{{ post.usuario.avatar_file }}">
                         <div class="media-body">
                             <div class="article-metadata">
-                                <a class="mr-2" href="#">{{ post.usuario.username }}</a>
+                                <a class="mr-2" href="">{{ post.usuario.username }}</a>
                                 <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
                             </div>
                             <h2>{{ post.title }}</a></h2>
                             <p class="article-content">{{ post.content|safe }}</p>
                         </div>
-                        <a class="btn btn-primary btn-sm" href="#" role="button">comentar</a>
+                        <a class="btn btn-primary btn-sm" href="{{ url_for('comentar', name=thread.tablero.short_title, hilo=thread.code, id=post.id) }}" role="button">comentar</a>
+                        <br><br>
+                        {% for com in post.comments %}
+                             <div class="content-section">
+                                 <div class="media-body">
+                                     <div class="article-metadata">
+                                         <a class="mr-2" href="">{{ com.usuario.username }}</a>
+                                            <small class="text-muted">{{ com.date_posted.strftime('%Y-%m-%d') }}</small>
+                                     </div>
+                                     <p class="article-content">{{ com.content|safe }}</p>
+                                 </div>
+                             </div>
+                        {% endfor %}
                     </div>
                 </div>
             {% endfor %}

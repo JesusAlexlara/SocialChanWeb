@@ -109,7 +109,7 @@ def account():
         form.email.data = current_user.email
     return render_template('account.html', title='Perfil', form=form)
 
-
+##################Tableros#################################################
 @app.route('/board', methods=['GET', 'POST'])
 @login_required
 def board():
@@ -127,6 +127,50 @@ def board():
         flash('Se guardo el tablon satisfactoriamente', 'success')
         return redirect(url_for('board'))
     return render_template('board.html', title='Tableros', form=form)
+
+
+@app.route('/<name>/edit', methods=['GET', 'POST'])
+@login_required
+def update_board(name):
+    form = BoardFormEdit()
+    board = Board.query.filter_by(short_title=name).first()
+    if board:
+        if form.validate_on_submit():
+
+            board.title = form.title.data
+            board.short_title = form.short_title.data
+            board.registered_user = form.registrados.data,
+            board.Description = form.descripcion.data
+
+            db.session.commit()
+            flash('Se edito el tablon satisfactoriamente', 'success')
+            return redirect(url_for('board'))
+        elif request.method == 'GET':
+            form.title.data = board.title
+            form.short_title.data = board.short_title
+            form.registrados.data = board.registered_user
+            form.descripcion.data = board.Description
+        return render_template('board_edit.html', title='Tableros', form=form)
+    flash('No existe el tablero', 'danger')
+    return redirect(url_for('home'))
+
+
+
+
+@app.route('/<name>/del', methods=['GET', 'POST'])
+@login_required
+def delete_board(name):
+    board = Board.query.filter_by(short_title=name).first()
+    if board:
+        db.session.delete(board)
+        db.session.commit()
+        flash('Se elimino el tablero', 'success')
+        return redirect(url_for('home'))
+    flash('No existe el tablero', 'danger')
+    return redirect(url_for('home'))
+
+
+############################################################################
 
 
 @app.route('/<name>')
@@ -213,3 +257,61 @@ def eliminar_hilo(name, hilo):
     db.session.commit()
     flash('Se elimino el hilo exitosamente', 'success')
     return redirect(url_for('layaout', name=name))
+
+
+@app.route('/<name>/<hilo>/mod', methods=['GET', 'POST'])
+def modificar_hilo(name, hilo):
+    board = Board.query.filter_by(short_title=name).first()
+    if not board:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    hilox = Thread.query.filter_by(code=hilo).first()
+    if not hilox:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    if not current_user.id == hilox.user_id:
+        flash('No eres el duelo del hilo :P', 'danger')
+        return redirect(url_for('hilo', name=name, hilo=hilo))
+    form = ModThreadForm()
+    if form.validate_on_submit():
+        hilox.title = form.title.data
+        hilox.raw_content = form.contenido.data
+        hilox.content = markdown2.markdown(form.contenido.data)
+        hilox.registered = form.registrados.data
+        db.session.commit()
+        return redirect(url_for('hilo', name=name, hilo=hilo))
+    elif request.method == 'GET':
+        form.title.data = hilox.title
+        form.contenido.data = hilox.raw_content
+        form.registrados.data = hilox.registered
+
+    return render_template('mod_hilo.html', title='modificar hilo :D', form=form)
+
+
+@app.route('/<name>/<hilo>/<id>/comment', methods=['GET', 'POST'])
+def comentar(name, hilo, id):
+    board = Board.query.filter_by(short_title=name).first()
+    if not board:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    hilox = Thread.query.filter_by(code=hilo).first()
+    if not hilox:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    poste = Post.query.filter_by(id=id).first()
+    if not poste:
+        flash('accion no permitida', 'danger')
+        return redirect(url_for('home'))
+    form = CommentForm()
+    if form.validate_on_submit():
+        cm = Comments(
+            content=form.scontenido.data,
+            usuario=current_user,
+            post=poste
+        )
+        db.session.add(cm)
+        db.session.commit()
+
+        flash('Se guardo el cometario', 'success')
+        return redirect(url_for('hilo', name=name, hilo=hilo))
+    return render_template('comment.html', form=form, title="comentar")

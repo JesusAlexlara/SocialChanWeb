@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}">
+<main role="main" class="container">
+    <div class="row justify-content-center">
+        <div class="text-center">
+            <img class="img-fluid" src="{{ url_for('static', filename='img/SocialChan.png') }}" alt="SocialChan">
+        </div>
+    </div>
+    <br>
+    <div class="content-section">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <a class="btn btn-success" href="{{ url_for('home') }}" role="button">Inicio</a>
+        <a class="btn btn-danger" href="{{ url_for('logout') }}" role="button">Salir</a><br><br>
+
+        <form method="post" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Comentar</legend>
+                <div class="form-group">
+                    {{ form.scontenido.label(class="form-control-label") }}
+                    {% if form.scontenido.errors %}
+                        {{ form.scontenido(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.contenido.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                    {% else %}
+                        {{ form.scontenido(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn btn-dark") }}
+            </div>
+        </form>
+    </div>
+</main>
+<script>
+    $('#scontenido').summernote({
+        height: 100
+      });
+</script>
+{% endblock content %}
